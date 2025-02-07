@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'landing_page.dart'; // Linking to the LandingPage
 import 'main.dart'; // Linking to LoginPage
+import 'profile_page.dart';
+import 'landing_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
