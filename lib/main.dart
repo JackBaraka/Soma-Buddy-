@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'landing_page.dart'; // nimeeka as another file
+import 'landing_page.dart'; // Import LandingPage
 
 void main() {
   runApp(const MyApp());
@@ -7,6 +7,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,14 +21,13 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// LoginPage as StatelessWidget
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
-// Login Page Logic and Layout
 class _LoginPageState extends State<LoginPage> {
   bool _isLogin = true;
 
@@ -48,8 +48,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo
-                  Icon(
+                  const Icon(
                     Icons.school,
                     size: 100,
                     color: Colors.white,
@@ -64,15 +63,14 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // Login/Register Form
                   Container(
                     width: 300,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        const BoxShadow(
+                      boxShadow: const [
+                        BoxShadow(
                           color: Colors.black26,
                           blurRadius: 10,
                           offset: Offset(0, 5),
@@ -81,7 +79,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: Column(
                       children: [
-                        // Username field
                         const TextField(
                           decoration: InputDecoration(
                             labelText: 'Username/Student ID',
@@ -89,7 +86,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        // Password field
                         const TextField(
                           obscureText: true,
                           decoration: InputDecoration(
@@ -99,7 +95,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         if (!_isLogin) const SizedBox(height: 20),
                         if (!_isLogin)
-                          // Confirm Password field (only for registration)
                           const TextField(
                             obscureText: true,
                             decoration: InputDecoration(
@@ -108,22 +103,21 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         const SizedBox(height: 30),
-                        // Login/Register button
                         ElevatedButton(
                           onPressed: () {
-                            // Handle login/register logic
                             print(
                                 _isLogin ? 'Logging in...' : 'Registering...');
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.teal[700],
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 50, vertical: 15),
+                              horizontal: 50,
+                              vertical: 15,
+                            ),
                           ),
                           child: Text(_isLogin ? 'Login' : 'Register'),
                         ),
                         const SizedBox(height: 20),
-                        // Switch between login and register
                         TextButton(
                           onPressed: () {
                             setState(() {

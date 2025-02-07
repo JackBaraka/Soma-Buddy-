@@ -20,9 +20,9 @@ class LandingPage extends StatelessWidget {
             child: Column(
               children: [
                 // Header Section
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 40.0, horizontal: 20.0),
+                const Padding(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 40.0, horizontal: 20.0),
                   child: Column(
                     children: [
                       Icon(
@@ -30,8 +30,8 @@ class LandingPage extends StatelessWidget {
                         size: 100,
                         color: Colors.white,
                       ),
-                      const SizedBox(height: 20),
-                      const Text(
+                      SizedBox(height: 20),
+                      Text(
                         'Welcome to SOMA BUDDY',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -40,8 +40,8 @@ class LandingPage extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      const Text(
+                      SizedBox(height: 10),
+                      Text(
                         'Your AI-Powered Learning Companion',
                         textAlign: TextAlign.center,
                         style: TextStyle(
