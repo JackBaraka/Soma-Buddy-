@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main.dart'; // Import main.dart to use LoginPage
 import 'profile_page.dart';
-import 'landing_page.dart';
+import 'modules_page.dart'; // Import the ModulesPage
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -55,7 +55,8 @@ class LandingPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Call to Action Section
+
+                // Get Started Button
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -74,6 +75,31 @@ class LandingPage extends StatelessWidget {
                   ),
                   child: const Text(
                     'Get Started',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Navigate to Modules Button
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ModulesPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal[600],
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text(
+                    'Go to Modules',
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
