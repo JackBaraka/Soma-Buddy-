@@ -1,16 +1,39 @@
-# soma_buddy_login
+# Soma Buddy
 
-A new Flutter project.
+Soma Buddy is an AI-powered smart learning companion designed to help students overcome common academic challenges and enhance their overall educational experience. This innovative solution adapts to individual needs by leveraging advanced AI algorithms to offer personalized learning support.
 
-## Getting Started
+## Key Features
 
-This project is a starting point for a Flutter application.
+- **Personalized Learning Support:**
+  - Analyzes academic background, learning styles, strengths, weaknesses, and interests.
+  - Recommends tailored study materials, notes, and strategies.
 
-A few resources to get you started if this is your first Flutter project:
+- **Smart Scheduling:**
+  - Creates optimized study schedules.
+  - Tracks progress and adapts recommendations based on performance.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Resource Recommendations:**
+  - Suggests relevant academic resources based on coursework and student profiles.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Performance Tracking:**
+  - Identifies learning patterns and monitors academic progress.
+
+- **Engagement and Motivation:**
+  - Incorporates a reward system to encourage continuous learning and engagement.
+
+## Benefits
+
+- **Improved Time Management:** Helps organize coursework and schedule study sessions effectively.
+- **Enhanced Academic Performance:** Provides personalized strategies to tackle weaknesses and leverage strengths.
+- **Adaptable Learning Experience:** Continuously evolves based on student progress.
+- **Increased Engagement:** Rewards system motivates students to stay on track.
+
+## Use Cases
+
+- Suitable for students across various fields and academic levels.
+- Ideal for learners seeking better organization, customized study plans, and effective learning strategies.
+
+
+## Contact
+For questions or support, reach out at jack.baraka15894@gmail.com
+
