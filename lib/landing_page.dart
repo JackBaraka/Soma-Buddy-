@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'main.dart'; // Import main.dart to use LoginPage
 
 class LandingPage extends StatelessWidget {
-  const LandingPage({super.key});
+const LandingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +20,9 @@ class LandingPage extends StatelessWidget {
             child: Column(
               children: [
                 // Header Section
-                const Padding(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 40.0, horizontal: 20.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 40.0, horizontal: 20.0),
                   child: Column(
                     children: [
                       Icon(
@@ -30,8 +30,8 @@ class LandingPage extends StatelessWidget {
                         size: 100,
                         color: Colors.white,
                       ),
-                      SizedBox(height: 20),
-                      Text(
+                      const SizedBox(height: 20),
+                      const Text(
                         'Welcome to SOMA BUDDY',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -40,8 +40,8 @@ class LandingPage extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 10),
-                      Text(
+                      const SizedBox(height: 10),
+                      const Text(
                         'Your AI-Powered Learning Companion',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -81,5 +81,5 @@ class LandingPage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
+    }
+    }
