@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'main.dart'; // Import main.dart to use LoginPage
+import 'profile_page.dart';
+import 'landing_page.dart';
 
 class LandingPage extends StatelessWidget {
-const LandingPage({super.key});
+  const LandingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -81,5 +83,5 @@ const LandingPage({super.key});
         ),
       ),
     );
-    }
-    }
+  }
+}
