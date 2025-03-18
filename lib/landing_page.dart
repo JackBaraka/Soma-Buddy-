@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main.dart'; // Import main.dart to use LoginPage
-import 'profile_page.dart';
-import 'modules_page.dart'; // Import the ModulesPage
+import 'modules_page.dart'; // Import modules_page.dart to use ModulesPage
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
