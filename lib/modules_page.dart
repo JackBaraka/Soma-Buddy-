@@ -3,7 +3,7 @@ import 'profile_page.dart';
 import 'content_page.dart';
 import 'progress_page.dart'; // Ensure this file contains the ProgressPage class
 import 'collaboration_page.dart'; // Ensure this file contains the CollaborationPage class
-import 'rewards_page.dart';
+import 'rewards_page.dart'; // Ensure this file contains the RewardsPage class
 
 // Removed unused import
 void main() {
@@ -154,7 +154,12 @@ class ModulesPage extends StatelessWidget {
                     description: 'View your earned badges and points',
                     icon: Icons.star,
                     color: Colors.amber,
-                    onTap: () => _showComingSoon(context, 'Rewards'),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RewardsPage(),
+                      ),
+                    ),
                   ),
                   ModuleCard(
                     title: 'Security',
