@@ -115,7 +115,11 @@ class ModulesPage extends StatelessWidget {
                     description: 'Personalized learning recommendations',
                     icon: Icons.library_books,
                     color: Colors.orange,
-                    onTap: () => _showComingSoon(context, 'Content'),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ContentPage()),
+                    ),
                   ),
                   ModuleCard(
                     title: 'Progress',
