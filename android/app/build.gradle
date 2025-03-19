@@ -39,7 +39,7 @@ android {
     defaultConfig {
         // Specify your unique Application ID
         applicationId = "com.example.soma_buddy_login"
-        minSdk = flutter.minSdkVersion
+        minSdk = 23  // Updated from 21 to 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName

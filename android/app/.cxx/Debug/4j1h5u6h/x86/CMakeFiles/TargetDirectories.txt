@@ -1,0 +1,2 @@
+D:/Baraka/Soma-Buddy-/android/app/.cxx/Debug/4j1h5u6h/x86/CMakeFiles/edit_cache.dir
+D:/Baraka/Soma-Buddy-/android/app/.cxx/Debug/4j1h5u6h/x86/CMakeFiles/rebuild_cache.dir
