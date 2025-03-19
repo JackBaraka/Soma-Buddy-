@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:soma_buddy_login/modules_page.dart';
+import 'package:soma_buddy_login/profile_page.dart';
 
 class ContentPage extends StatefulWidget {
   const ContentPage({super.key});
@@ -37,6 +39,9 @@ class ModulesPage extends StatelessWidget {
 
 // Data Models
 // Removed duplicate ContentCourse class definition
+
+// Data Models
+// Removed duplicate ContentCourse, ContentModule, and ContentRecommendation class definitions
 
 class _ContentPageState extends State<ContentPage> {
   void _navigateToModule(String moduleTitle) {
