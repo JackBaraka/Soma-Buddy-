@@ -3,6 +3,7 @@ import 'profile_page.dart';
 import 'content_page.dart';
 import 'progress_page.dart'; // Ensure this file contains the ProgressPage class
 import 'collaboration_page.dart'; // Ensure this file contains the CollaborationPage class
+import 'rewards_page.dart';
 
 // Removed unused import
 void main() {
