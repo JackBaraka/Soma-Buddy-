@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'profile_page.dart';
 import 'content_page.dart';
-import 'progress_page.dart'; // Ensure this file contains the ProgressPage class
-import 'collaboration_page.dart'; // Ensure this file contains the CollaborationPage class
-import 'rewards_page.dart'; // Ensure this file contains the RewardsPage class
-import 'security_page.dart'; // Ensure this file contains the SecurityPage class
+import 'progress_page.dart';
+import 'collaboration_page.dart';
+import 'rewards_page.dart';
+import 'security_page.dart';
 
-// Removed unused import
 void main() {
   runApp(const MyApp());
 }
@@ -41,22 +40,22 @@ class ModulesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.school),
-            SizedBox(width: 10),
-            Text(
-              'SOMA BUDDY',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ],
+        title: const Text(
+          'SOMA BUDDY',
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
         centerTitle: true,
         elevation: 2,
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {},
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -67,7 +66,7 @@ class ModulesPage extends StatelessWidget {
               const Text(
                 'Welcome to Soma Buddy',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
@@ -76,105 +75,24 @@ class ModulesPage extends StatelessWidget {
               Text(
                 'Your AI-Powered Learning Companion',
                 style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
+                  fontSize: 18,
+                  color: Colors.grey[700],
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Learning Modules',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.1,
                 ),
-              ),
-              const SizedBox(height: 16),
-              GridView.count(
-                crossAxisCount: 2,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                children: [
-                  ModuleCard(
-                    title: 'User Profile',
-                    description: 'Manage your academic profile and preferences',
-                    icon: Icons.person,
-                    color: Colors.blue,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ProfilePage()),
-                    ),
-                  ),
-                  ModuleCard(
-                    title: 'Schedule',
-                    description: 'AI-driven study schedule optimization',
-                    icon: Icons.schedule,
-                    color: Colors.green,
-                    onTap: () => _showComingSoon(context, 'Schedule'),
-                  ),
-                  ModuleCard(
-                    title: 'Content',
-                    description: 'Personalized learning recommendations',
-                    icon: Icons.library_books,
-                    color: Colors.orange,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ContentPage()),
-                    ),
-                  ),
-                  ModuleCard(
-                    title: 'Progress',
-                    description: 'Track your learning achievements',
-                    icon: Icons.trending_up,
-                    color: Colors.purple,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProgressPage(),
-                      ),
-                    ),
-                  ),
-                  ModuleCard(
-                    title: 'Collaborate',
-                    description: 'Connect with peers for group study',
-                    icon: Icons.group,
-                    color: Colors.red,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CollaborationPage(),
-                      ),
-                    ),
-                  ),
-                  ModuleCard(
-                    title: 'Rewards',
-                    description: 'View your earned badges and points',
-                    icon: Icons.star,
-                    color: Colors.amber,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RewardsPage(),
-                      ),
-                    ),
-                  ),
-                  ModuleCard(
-                    title: 'Security',
-                    description: 'Manage your privacy settings',
-                    icon: Icons.security,
-                    color: Colors.teal,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SecurityPage(),
-                      ),
-                    ),
-                  ),
-                ],
+                itemCount: moduleList.length,
+                itemBuilder: (context, index) {
+                  return ModuleCard(module: moduleList[index]);
+                },
               ),
             ],
           ),
@@ -182,82 +100,124 @@ class ModulesPage extends StatelessWidget {
       ),
     );
   }
-
-  void _showComingSoon(BuildContext context, String moduleName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$moduleName module inakam soon!'),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        action: SnackBarAction(
-          label: 'OK',
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-      ),
-    );
-  }
 }
 
-class ModuleCard extends StatelessWidget {
+class Module {
   final String title;
   final String description;
   final IconData icon;
   final Color color;
-  final VoidCallback onTap;
+  final Widget page;
 
-  const ModuleCard({
-    super.key,
+  Module({
     required this.title,
     required this.description,
     required this.icon,
     required this.color,
-    required this.onTap,
+    required this.page,
   });
+}
+
+List<Module> moduleList = [
+  Module(
+    title: 'User Profile',
+    description: 'Manage your academic profile and preferences',
+    icon: Icons.person,
+    color: Colors.blue,
+    page: const ProfilePage(),
+  ),
+  Module(
+    title: 'Content',
+    description: 'Personalized learning recommendations',
+    icon: Icons.library_books,
+    color: Colors.orange,
+    page: const ContentPage(),
+  ),
+  Module(
+    title: 'Progress',
+    description: 'Track your learning achievements',
+    icon: Icons.trending_up,
+    color: Colors.purple,
+    page: const ProgressPage(),
+  ),
+  Module(
+    title: 'Collaborate',
+    description: 'Connect with peers for group study',
+    icon: Icons.group,
+    color: Colors.red,
+    page: const CollaborationPage(),
+  ),
+  Module(
+    title: 'Rewards',
+    description: 'View your earned badges and points',
+    icon: Icons.star,
+    color: Colors.amber,
+    page: const RewardsPage(),
+  ),
+  Module(
+    title: 'Security',
+    description: 'Manage your privacy settings',
+    icon: Icons.security,
+    color: Colors.teal,
+    page: const SecurityPage(),
+  ),
+];
+
+class ModuleCard extends StatelessWidget {
+  final Module module;
+
+  const ModuleCard({super.key, required this.module});
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
       child: InkWell(
-        onTap: onTap,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => module.page),
+        ),
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [
+                module.color.withOpacity(0.8),
+                module.color.withOpacity(0.5)
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  size: 32,
-                  color: color,
-                ),
+              Icon(
+                module.icon,
+                size: 40,
+                color: Colors.white,
               ),
               const SizedBox(height: 12),
               Text(
-                title,
+                module.title,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
-                description,
-                style: TextStyle(
+                module.description,
+                style: const TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: Colors.white70,
                 ),
                 textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
