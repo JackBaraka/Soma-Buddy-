@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "709984222631",
+    "project_id": "soma-buddy",
+    "storage_bucket": "soma-buddy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:709984222631:android:65578777273ff856458a82",
+        "android_client_info": {
+          "package_name": "com.example.soma_buddy_login"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDr__l6odHjqAFkxXbpPfKgnvM3eqssr6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

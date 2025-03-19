@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart'; // Ensure you have this package
 
 class ProgressPage extends StatefulWidget {
-  const ProgressPage({Key? key}) : super(key: key);
+  const ProgressPage({super.key});
 
   @override
   _ProgressPageState createState() => _ProgressPageState();
@@ -97,8 +97,7 @@ class ModuleProgress {
 class ModuleProgressCard extends StatelessWidget {
   final ModuleProgress moduleProgress;
 
-  const ModuleProgressCard({Key? key, required this.moduleProgress})
-      : super(key: key);
+  const ModuleProgressCard({super.key, required this.moduleProgress});
 
   @override
   Widget build(BuildContext context) {
