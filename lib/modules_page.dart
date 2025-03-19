@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'profile_page.dart';
 import 'content_page.dart';
 import 'progress_page.dart'; // Ensure this file contains the ProgressPage class
+import 'collaboration_page.dart'; // Ensure this file contains the CollaborationPage class
 
+// Removed unused import
 void main() {
   runApp(const MyApp());
 }
@@ -139,7 +141,12 @@ class ModulesPage extends StatelessWidget {
                     description: 'Connect with peers for group study',
                     icon: Icons.group,
                     color: Colors.red,
-                    onTap: () => _showComingSoon(context, 'Collaborate'),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CollaborationPage(),
+                      ),
+                    ),
                   ),
                   ModuleCard(
                     title: 'Rewards',
