@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'profile_page.dart';
 import 'content_page.dart';
+import 'progress_page.dart'; // Ensure this file contains the ProgressPage class
 
 void main() {
   runApp(const MyApp());
@@ -126,7 +127,12 @@ class ModulesPage extends StatelessWidget {
                     description: 'Track your learning achievements',
                     icon: Icons.trending_up,
                     color: Colors.purple,
-                    onTap: () => _showComingSoon(context, 'Progress'),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProgressPage(),
+                      ),
+                    ),
                   ),
                   ModuleCard(
                     title: 'Collaborate',
