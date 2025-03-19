@@ -19,6 +19,16 @@ class _ContentPageState extends State<ContentPage> {
       modules: [
         ContentModule(
           title: 'Variables and Data Types',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ModulesPage(
+                  moduleTitle: 'Variables and Data Types',
+                ),
+              ),
+            );
+          },
           duration: '45 mins',
           isCompleted: true,
         ),
