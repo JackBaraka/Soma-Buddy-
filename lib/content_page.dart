@@ -7,28 +7,60 @@ class ContentPage extends StatefulWidget {
   State<ContentPage> createState() => _ContentPageState();
 }
 
+// Define the ModulesPage class
+class ModulesPage extends StatelessWidget {
+  final String moduleTitle;
+
+  const ModulesPage({Key? key, required this.moduleTitle}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(moduleTitle),
+      ),
+      body: Center(
+        child: Text(
+          'Content for $moduleTitle',
+          style: const TextStyle(fontSize: 18),
+        ),
+      ),
+    );
+  }
+}
+
+// Data Models
+// Removed duplicate ContentCourse class definition
+
+// Data Models
+// Removed duplicate ContentCourse class definition
+
+// Data Models
+// Removed duplicate ContentCourse class definition
+
 class _ContentPageState extends State<ContentPage> {
+  void _navigateToModule(String moduleTitle) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ModulesPage(moduleTitle: moduleTitle),
+      ),
+    );
+  }
   // Sample content data - in a real app, this would come from a database or API
   final List<ContentCourse> _courses = [
     ContentCourse(
-      title: 'Introduction to Programming',
-      description: 'Learn basics of programming with Python',
+      title: 'Programming Basics',
+      description: 'Learn the fundamentals of programming',
       progress: 0.75,
       icon: Icons.code,
       color: Colors.blue,
       modules: [
         ContentModule(
           title: 'Variables and Data Types',
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ModulesPage(
-                  moduleTitle: 'Variables and Data Types',
-                ),
-              ),
-            );
-          },
+          duration: '45 mins',
+          isCompleted: true,
+        ),
           duration: '45 mins',
           isCompleted: true,
         ),
@@ -50,7 +82,7 @@ class _ContentPageState extends State<ContentPage> {
       ],
     ),
     ContentCourse(
-      title: 'Web Development Fundamentals',
+      title: {'Web Development Fundamentals'},
       description: 'HTML, CSS, and JavaScript basics',
       progress: 0.5,
       icon: Icons.web,
