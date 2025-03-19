@@ -4,6 +4,7 @@ import 'content_page.dart';
 import 'progress_page.dart'; // Ensure this file contains the ProgressPage class
 import 'collaboration_page.dart'; // Ensure this file contains the CollaborationPage class
 import 'rewards_page.dart'; // Ensure this file contains the RewardsPage class
+import 'security_page.dart'; // Ensure this file contains the SecurityPage class
 
 // Removed unused import
 void main() {
@@ -166,7 +167,12 @@ class ModulesPage extends StatelessWidget {
                     description: 'Manage your privacy settings',
                     icon: Icons.security,
                     color: Colors.teal,
-                    onTap: () => _showComingSoon(context, 'Security'),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SecurityPage(),
+                      ),
+                    ),
                   ),
                 ],
               ),
