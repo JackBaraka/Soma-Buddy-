@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'main.dart'; // Import main.dart to use LoginPage
+import 'main.dart' as main_app; // Import main.dart with alias
 import 'modules_page.dart'; // Import modules_page.dart to use ModulesPage
 
 class LandingPage extends StatelessWidget {
@@ -61,7 +61,7 @@ class LandingPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
+                          builder: (context) => const main_app.MyApp()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
