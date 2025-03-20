@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'modules_page.dart'; // Import ModulesPage
+import 'package:firebase_auth/firebase_auth.dart';
+import 'modules_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,36 +14,117 @@ class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool _isLoading = false;
+  String _errorMessage = '';
 
-  // You'll implement these methods when integrating Firebase
+  // Firebase login method
   Future<void> _handleLogin() async {
-    // Firebase authentication will go here
-    print('Logging in with: ${_usernameController.text}');
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
 
-    // For now, just navigate to ModulesPage
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const ModulesPage()),
-    );
+    try {
+      // Sign in with email and password
+      final UserCredential userCredential =
+          await _auth.signInWithEmailAndPassword(
+        email: _usernameController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      // Check if user is signed in
+      if (userCredential.user != null) {
+        // Navigate to ModulesPage
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const ModulesPage()),
+          );
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = _getErrorMessage(e.code);
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An error occurred. Please try again later.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
+  // Firebase registration method
   Future<void> _handleRegister() async {
-    // Firebase registration will go here
-    print('Registering with: ${_usernameController.text}');
-
     if (_passwordController.text != _confirmPasswordController.text) {
-      // Show error for password mismatch
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match!')),
-      );
+      setState(() {
+        _errorMessage = 'Passwords do not match!';
+      });
       return;
     }
 
-    // For now, just navigate to ModulesPage
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const ModulesPage()),
-    );
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      // Create user with email and password
+      final UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: _usernameController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      // Check if user is created
+      if (userCredential.user != null) {
+        // Navigate to ModulesPage
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const ModulesPage()),
+          );
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = _getErrorMessage(e.code);
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An error occurred. Please try again later.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Helper method to get user-friendly error messages
+  String _getErrorMessage(String errorCode) {
+    switch (errorCode) {
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'user-not-found':
+        return 'No account found with this email.';
+      case 'wrong-password':
+        return 'Incorrect password.';
+      case 'email-already-in-use':
+        return 'An account already exists for this email.';
+      case 'operation-not-allowed':
+        return 'Email/password accounts are not enabled.';
+      case 'weak-password':
+        return 'Please enter a stronger password.';
+      default:
+        return 'Authentication failed. Please try again.';
+    }
   }
 
   @override
@@ -112,9 +194,10 @@ class _LoginPageState extends State<LoginPage> {
                         TextField(
                           controller: _usernameController,
                           decoration: const InputDecoration(
-                            labelText: 'Username/Student ID',
-                            prefixIcon: Icon(Icons.person),
+                            labelText: 'Email',
+                            prefixIcon: Icon(Icons.email),
                           ),
+                          keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 20),
                         TextField(
@@ -135,29 +218,48 @@ class _LoginPageState extends State<LoginPage> {
                               prefixIcon: Icon(Icons.lock),
                             ),
                           ),
-                        const SizedBox(height: 30),
-                        ElevatedButton(
-                          onPressed: _isLogin ? _handleLogin : _handleRegister,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.teal[700],
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 50,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                        const SizedBox(height: 10),
+                        if (_errorMessage.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              _errorMessage,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 14,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
-                          child: Text(
-                            _isLogin ? 'Login' : 'Register',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
+                        const SizedBox(height: 20),
+                        _isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.teal,
+                              )
+                            : ElevatedButton(
+                                onPressed:
+                                    _isLogin ? _handleLogin : _handleRegister,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.teal[700],
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 50,
+                                    vertical: 15,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: Text(
+                                  _isLogin ? 'Login' : 'Register',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
                         const SizedBox(height: 20),
                         TextButton(
                           onPressed: () {
                             setState(() {
                               _isLogin = !_isLogin;
+                              _errorMessage = '';
                             });
                           },
                           child: Text(
@@ -167,6 +269,16 @@ class _LoginPageState extends State<LoginPage> {
                             style: TextStyle(color: Colors.teal[700]),
                           ),
                         ),
+                        if (_isLogin)
+                          TextButton(
+                            onPressed: () {
+                              _showForgotPasswordDialog();
+                            },
+                            child: Text(
+                              'Forgot Password?',
+                              style: TextStyle(color: Colors.teal[700]),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -175,6 +287,65 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showForgotPasswordDialog() {
+    final TextEditingController emailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Password'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+                'Enter your email address to receive a password reset link.'),
+            const SizedBox(height: 20),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.email),
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await _auth.sendPasswordResetEmail(
+                  email: emailController.text.trim(),
+                );
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content:
+                        Text('Password reset email sent! Check your inbox.'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } on FirebaseAuthException catch (e) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(_getErrorMessage(e.code)),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: const Text('Send Reset Link'),
+          ),
+        ],
       ),
     );
   }

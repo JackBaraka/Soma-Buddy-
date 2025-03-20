@@ -1,17 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'profile_page.dart';
 import 'content_page.dart';
 import 'progress_page.dart';
 import 'collaboration_page.dart';
 import 'rewards_page.dart';
 import 'security_page.dart';
-import 'login_page.dart'; // Import LoginPage for logout functionality
+import 'login_page.dart';
 
 class ModulesPage extends StatelessWidget {
   const ModulesPage({super.key});
 
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error logging out. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String userEmail = currentUser?.email ?? 'User';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -31,14 +52,7 @@ class ModulesPage extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Implement logout functionality
-              // For now, just navigate back to login screen
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
+            onPressed: () => _logout(context),
           ),
         ],
       ),
@@ -48,9 +62,9 @@ class ModulesPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Welcome to Soma Buddy',
-                style: TextStyle(
+              Text(
+                'Welcome, ${userEmail.split('@')[0]}',
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -87,6 +101,7 @@ class ModulesPage extends StatelessWidget {
   }
 }
 
+// Rest of the code remains the same
 class Module {
   final String title;
   final String description;
