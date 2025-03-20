@@ -5,33 +5,7 @@ import 'progress_page.dart';
 import 'collaboration_page.dart';
 import 'rewards_page.dart';
 import 'security_page.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Soma Buddy',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.grey[100],
-        cardTheme: CardTheme(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-      home: const ModulesPage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
+import 'login_page.dart'; // Import LoginPage for logout functionality
 
 class ModulesPage extends StatelessWidget {
   const ModulesPage({super.key});
@@ -54,6 +28,17 @@ class ModulesPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              // Implement logout functionality
+              // For now, just navigate back to login screen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
+            },
           ),
         ],
       ),
