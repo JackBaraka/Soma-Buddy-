@@ -108,9 +108,8 @@ class _ContentPageState extends State<ContentPage> {
     return TextButton(
       onPressed: () => setState(() => _selectedTabIndex = index),
       style: TextButton.styleFrom(
-        backgroundColor: _selectedTabIndex == index
-            ? Colors.teal
-            : Colors.grey.withOpacity(0.1),
+        backgroundColor:
+            _selectedTabIndex == index ? Colors.teal : Colors.grey[200],
       ),
       child: Text(title,
           style: TextStyle(

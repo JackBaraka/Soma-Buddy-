@@ -12,7 +12,20 @@
           "package_name": "com.example.soma_buddy_login"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "709984222631-fjlu4mt1qlvluvv3rt7ptdf1sidcrgp3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.soma_buddy_login",
+            "certificate_hash": "9f32859fa80d92efbe144e4162d79c6d924ecdec"
+          }
+        },
+        {
+          "client_id": "709984222631-lh290nhbpqi0r735rm443qcrk02sjon9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDr__l6odHjqAFkxXbpPfKgnvM3eqssr6Y"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "709984222631-lh290nhbpqi0r735rm443qcrk02sjon9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "709984222631-ki8rso4uhai55c9f9gtgtese4k99js77.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.somaBuddyLogin"
+              }
+            }
+          ]
         }
       }
     }

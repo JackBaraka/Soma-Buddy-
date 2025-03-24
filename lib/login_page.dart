@@ -325,14 +325,23 @@ class _LoginPageState extends State<LoginPage> {
                 await _auth.sendPasswordResetEmail(
                   email: emailController.text.trim(),
                 );
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content:
-                        Text('Password reset email sent! Check your inbox.'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                if (emailController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a valid email address.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } else {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content:
+                          Text('Password reset email sent! Check your inbox.'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
               } on FirebaseAuthException catch (e) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
