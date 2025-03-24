@@ -12,14 +12,15 @@ class ModulesPage extends StatelessWidget {
   const ModulesPage({super.key});
 
   Future<void> _logout(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
       await FirebaseAuth.instance.signOut();
-      Navigator.pushReplacement(
-        context,
+      navigator.pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         const SnackBar(
           content: Text('Error logging out. Please try again.'),
           backgroundColor: Colors.red,
@@ -185,8 +186,8 @@ class ModuleCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
               colors: [
-                module.color.withOpacity(0.8),
-                module.color.withOpacity(0.5)
+                module.color.withAlpha((0.8 * 255).toInt()),
+                module.color.withAlpha((0.5 * 255).toInt())
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,

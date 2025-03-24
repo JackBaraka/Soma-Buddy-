@@ -36,6 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   firebase_auth: ^5.5.1
+  firebase_core: ^3.12.1 # Added firebase_core dependency
 
 dev_dependencies:
   flutter_test:
@@ -89,8 +90,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-# Removed duplicate dependencies section to fix the error.
-# Firebase dependencies
-firebase_core: ^2.15.0 # Or the latest version
-firebase_auth: ^4.8.0 # Or the latest version
-cloud_firestore: ^5.5.0 # Or the latest version

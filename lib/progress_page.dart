@@ -5,10 +5,10 @@ class ProgressPage extends StatefulWidget {
   const ProgressPage({super.key});
 
   @override
-  _ProgressPageState createState() => _ProgressPageState();
+  ProgressPageState createState() => ProgressPageState();
 }
 
-class _ProgressPageState extends State<ProgressPage> {
+class ProgressPageState extends State<ProgressPage> {
   // Sample data (replace with your actual data source)
   double overallProgress = 0.75; // Example: 75% overall progress
   List<ModuleProgress> modulesProgress = [
