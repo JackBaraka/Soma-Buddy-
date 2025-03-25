@@ -1,4 +1,3 @@
-// profile_page.dart
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -9,15 +8,31 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // Sample user data - in a real app, this would come from a database
-  final Map<String, String> userData = {
-    'name': 'Jack Baraka',
-    'studentId': 'INTE/MG/1727/09/21',
-    'course': 'Bachelor of Science in Information Technology',
-    'year': '4th Year',
-    'university': 'Kabarak University',
-    'email': 'jack.baraka@student.kabarak.ac.ke',
-  };
+  bool isEditing = false;
+  final TextEditingController nameController =
+      TextEditingController(text: 'Jack Baraka');
+  final TextEditingController studentIdController =
+      TextEditingController(text: 'INTE/MG/1727/09/21');
+  final TextEditingController courseController = TextEditingController(
+      text: 'Bachelor of Science in Information Technology');
+  final TextEditingController yearController =
+      TextEditingController(text: '4th Year');
+  final TextEditingController universityController =
+      TextEditingController(text: 'Kabarak University');
+  final TextEditingController emailController =
+      TextEditingController(text: 'jack.baraka@student.kabarak.ac.ke');
+
+  void toggleEdit() {
+    setState(() {
+      isEditing = !isEditing;
+    });
+  }
+
+  void saveProfile() {
+    setState(() {
+      isEditing = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,133 +40,69 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: const Text('My Profile'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              // TODO: Implement edit profile functionality
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Edit profile coming soon!')),
-              );
-            },
-          ),
+          if (isEditing)
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: saveProfile,
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: toggleEdit,
+            ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            // Profile Picture
-            Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.grey[200],
-                    child: const Icon(
-                      Icons.person,
-                      size: 60,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Profile Information
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildProfileSection('Personal Information'),
-                      _buildProfileItem('Name', userData['name']!),
-                      _buildProfileItem('Student ID', userData['studentId']!),
-                      _buildProfileItem('Email', userData['email']!),
-                      const Divider(),
-                      _buildProfileSection('Academic Information'),
-                      _buildProfileItem('Course', userData['course']!),
-                      _buildProfileItem('Year', userData['year']!),
-                      _buildProfileItem('University', userData['university']!),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            // Learning Preferences
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildProfileSection('Learning Preferences'),
-                      _buildPreferenceItem('Preferred Study Time', 'Morning'),
-                      _buildPreferenceItem('Study Duration', '2 hours'),
-                      _buildPreferenceItem('Learning Style', 'Visual'),
-                      const SizedBox(height: 10),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // TODO: Implement preferences update
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content:
-                                    Text('Update preferences coming soon!'),
-                              ),
-                            );
-                          },
-                          child: const Text('Update Preferences'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          elevation: 4,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: isEditing ? _buildEditableForm() : _buildProfileDisplay(),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildProfileSection(String title) {
+  Widget _buildEditableForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTextField('Name', nameController),
+        _buildTextField('Student ID', studentIdController),
+        _buildTextField('Email', emailController),
+        _buildTextField('Course', courseController),
+        _buildTextField('Year', yearController),
+        _buildTextField('University', universityController),
+      ],
+    );
+  }
+
+  Widget _buildProfileDisplay() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildProfileItem('Name', nameController.text),
+        _buildProfileItem('Student ID', studentIdController.text),
+        _buildProfileItem('Email', emailController.text),
+        _buildProfileItem('Course', courseController.text),
+        _buildProfileItem('Year', yearController.text),
+        _buildProfileItem('University', universityController.text),
+      ],
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.blue,
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );
@@ -161,39 +112,26 @@ class _ProfilePageState extends State<ProfilePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
+          Text(
+            '$label: ',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueGrey,
             ),
           ),
           Expanded(
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontSize: 16,
+                color: Colors.black87,
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPreferenceItem(String label, String value) {
-    return ListTile(
-      title: Text(label),
-      subtitle: Text(value),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      dense: true,
     );
   }
 }

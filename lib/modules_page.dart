@@ -41,11 +41,8 @@ class ModulesPage extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
         centerTitle: true,
-        elevation: 2,
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () {},
-        ),
+        elevation: 4,
+        backgroundColor: Colors.deepPurple,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
@@ -57,44 +54,53 @@ class ModulesPage extends StatelessWidget {
           ),
         ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome, ${userEmail.split('@')[0]}',
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple, Colors.indigo],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome, ${userEmail.split('@')[0]}',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Your AI-Powered Learning Companion',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.grey[700],
+                const SizedBox(height: 8),
+                Text(
+                  'Your AI-Powered Learning Companion',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white70,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1.1,
+                const SizedBox(height: 24),
+                GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.1,
+                  ),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: moduleList.length,
+                  itemBuilder: (context, index) {
+                    return ModuleCard(module: moduleList[index]);
+                  },
                 ),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: moduleList.length,
-                itemBuilder: (context, index) {
-                  return ModuleCard(module: moduleList[index]);
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -102,7 +108,6 @@ class ModulesPage extends StatelessWidget {
   }
 }
 
-// Rest of the code remains the same
 class Module {
   final String title;
   final String description;
@@ -173,7 +178,7 @@ class ModuleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
+      elevation: 6,
       child: InkWell(
         onTap: () => Navigator.push(
           context,
@@ -186,8 +191,8 @@ class ModuleCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
               colors: [
-                module.color.withAlpha((0.8 * 255).toInt()),
-                module.color.withAlpha((0.5 * 255).toInt())
+                module.color.withOpacity(0.9),
+                module.color.withOpacity(0.6)
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
