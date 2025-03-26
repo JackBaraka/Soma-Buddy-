@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'dart:async';
+import 'dart:developer';
 
 class ProgressPage extends StatefulWidget {
   const ProgressPage({super.key});
@@ -120,7 +121,7 @@ class ProgressPageState extends State<ProgressPage> {
     });
 
     _showErrorSnackBar(_errorMessage);
-    print('Unexpected error: $e');
+    log('Unexpected error: $e', name: 'ProgressPage');
   }
 
   String _getFirebaseErrorMessage(FirebaseException e) {

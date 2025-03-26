@@ -5,10 +5,10 @@ class ContentPage extends StatefulWidget {
   const ContentPage({super.key});
 
   @override
-  _ContentPageState createState() => _ContentPageState();
+  ContentPageState createState() => ContentPageState();
 }
 
-class _ContentPageState extends State<ContentPage> {
+class ContentPageState extends State<ContentPage> {
   // Simulating course data with more detailed structure
   final List<LearningContent> _contents = [
     LearningContent(
