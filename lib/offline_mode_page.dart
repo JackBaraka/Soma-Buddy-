@@ -1,6 +1,9 @@
+// This file is part of the Soma-Buddy application.
+// It provides the OfflineModePage for managing offline content.
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'modules_page.dart';
 
 class OfflineModePage extends StatefulWidget {
   const OfflineModePage({super.key});
@@ -57,11 +60,14 @@ class _OfflineModePageState extends State<OfflineModePage> {
                   elevation: 4,
                   child: ListTile(
                     leading: Icon(
-                      file.path.endsWith('.pdf') ? Icons.picture_as_pdf : Icons.video_library,
+                      file.path.endsWith('.pdf')
+                          ? Icons.picture_as_pdf
+                          : Icons.video_library,
                       color: Colors.deepPurple,
                     ),
                     title: Text(file.path.split('/').last),
-                    subtitle: Text('Size: ${(file.lengthSync() / 1024).toStringAsFixed(2)} KB'),
+                    subtitle: Text(
+                        'Size: ${(file.lengthSync() / 1024).toStringAsFixed(2)} KB'),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () => _deleteFile(file),
@@ -76,9 +82,6 @@ class _OfflineModePageState extends State<OfflineModePage> {
     );
   }
 }
-
-// Link this page to ModulesPage
-import 'modules_page.dart';
 
 List<Module> moduleList = [
   Module(
