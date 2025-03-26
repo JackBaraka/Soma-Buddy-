@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'profile_page.dart';
@@ -9,6 +7,7 @@ import 'collaboration_page.dart';
 import 'rewards_page.dart';
 import 'security_page.dart';
 import 'login_page.dart';
+import 'offline_mode_page.dart';
 
 class ModulesPage extends StatelessWidget {
   const ModulesPage({super.key});
@@ -168,6 +167,13 @@ List<Module> moduleList = [
     icon: Icons.security,
     color: Colors.teal,
     page: const SecurityPage(),
+  ),
+  Module(
+    title: 'Offline Mode',
+    description: 'Access your saved content without internet',
+    icon: Icons.offline_pin,
+    color: Colors.green,
+    page: const OfflineModePage(),
   ),
 ];
 
