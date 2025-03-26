@@ -20,34 +20,39 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SOMA BUDDY',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.grey[100],
-        cardTheme: CardTheme(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+      theme: _buildTheme(),
+      home: _buildHome(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+
+  ThemeData _buildTheme() {
+    return ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+      useMaterial3: true,
+      scaffoldBackgroundColor: Colors.grey[100],
+      cardTheme: CardTheme(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-          if (snapshot.hasData) {
-            return const ModulesPage();
-          }
-          return const LoginPage();
-        },
-      ),
-      debugShowCheckedModeBanner: false,
+    );
+  }
+
+  Widget _buildHome() {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        return snapshot.hasData ? const ModulesPage() : const LoginPage();
+      },
     );
   }
 }
