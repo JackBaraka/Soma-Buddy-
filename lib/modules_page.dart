@@ -199,8 +199,8 @@ class ModuleCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
               colors: [
-                module.color.withOpacity(0.9),
-                module.color.withOpacity(0.6)
+                module.color.withAlpha((0.9 * 255).toInt()),
+                module.color.withAlpha((0.6 * 255).toInt())
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
