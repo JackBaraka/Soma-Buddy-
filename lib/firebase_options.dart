@@ -64,10 +64,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '709984222631',
     projectId: 'soma-buddy',
     storageBucket: 'soma-buddy.firebasestorage.app',
-    androidClientId:
-        '709984222631-fjlu4mt1qlvluvv3rt7ptdf1sidcrgp3.apps.googleusercontent.com',
-    iosClientId:
-        '709984222631-ki8rso4uhai55c9f9gtgtese4k99js77.apps.googleusercontent.com',
+    androidClientId: '709984222631-fjlu4mt1qlvluvv3rt7ptdf1sidcrgp3.apps.googleusercontent.com',
+    iosClientId: '709984222631-ki8rso4uhai55c9f9gtgtese4k99js77.apps.googleusercontent.com',
     iosBundleId: 'com.example.somaBuddyLogin',
   );
 
@@ -77,10 +75,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '709984222631',
     projectId: 'soma-buddy',
     storageBucket: 'soma-buddy.firebasestorage.app',
-    androidClientId:
-        '709984222631-fjlu4mt1qlvluvv3rt7ptdf1sidcrgp3.apps.googleusercontent.com',
-    iosClientId:
-        '709984222631-ki8rso4uhai55c9f9gtgtese4k99js77.apps.googleusercontent.com',
+    androidClientId: '709984222631-fjlu4mt1qlvluvv3rt7ptdf1sidcrgp3.apps.googleusercontent.com',
+    iosClientId: '709984222631-ki8rso4uhai55c9f9gtgtese4k99js77.apps.googleusercontent.com',
     iosBundleId: 'com.example.somaBuddyLogin',
   );
 
@@ -93,4 +89,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'soma-buddy.firebasestorage.app',
     measurementId: 'G-9PRP01EM1E',
   );
+
 }
