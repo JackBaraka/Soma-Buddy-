@@ -1,7 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class SecurityPage extends StatelessWidget {
+class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
+
+  @override
+  State<SecurityPage> createState() => _SecurityPageState();
+}
+
+class _SecurityPageState extends State<SecurityPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> _changePassword() async {
+    // Implement change password functionality
+  }
+
+  Future<void> _enableTwoFactorAuth() async {
+    // Implement two-factor authentication functionality
+  }
+
+  Future<void> _manageTrustedDevices() async {
+    // Implement trusted devices management functionality
+  }
+
+  Future<void> _reviewAccountActivity() async {
+    // Fetch and display account activity logs from Firestore
+  }
+
+  Future<void> _updatePrivacySettings() async {
+    // Implement privacy settings update functionality
+  }
+
+  Future<void> _logoutFromAllDevices() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      await _firestore.collection('users').doc(user.uid).update({
+        'tokens': [],
+      });
+      await _auth.signOut();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +65,7 @@ class SecurityPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Update your password, enable two-factor authentication, and review account activity.',
+              'Update your password, enable 2FA, and review account activity.',
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
@@ -35,32 +75,32 @@ class SecurityPage extends StatelessWidget {
                   SecurityOption(
                     title: 'Change Password',
                     icon: Icons.lock,
-                    onTap: () {},
+                    onTap: _changePassword,
                   ),
                   SecurityOption(
                     title: 'Enable Two-Factor Authentication',
                     icon: Icons.shield,
-                    onTap: () {},
+                    onTap: _enableTwoFactorAuth,
                   ),
                   SecurityOption(
                     title: 'Manage Trusted Devices',
                     icon: Icons.devices,
-                    onTap: () {},
+                    onTap: _manageTrustedDevices,
                   ),
                   SecurityOption(
                     title: 'Review Account Activity',
                     icon: Icons.history,
-                    onTap: () {},
+                    onTap: _reviewAccountActivity,
                   ),
                   SecurityOption(
                     title: 'Privacy Settings',
                     icon: Icons.privacy_tip,
-                    onTap: () {},
+                    onTap: _updatePrivacySettings,
                   ),
                   SecurityOption(
                     title: 'Logout from All Devices',
                     icon: Icons.exit_to_app,
-                    onTap: () {},
+                    onTap: _logoutFromAllDevices,
                   ),
                 ],
               ),
