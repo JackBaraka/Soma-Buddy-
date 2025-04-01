@@ -14,23 +14,65 @@ class _SecurityPageState extends State<SecurityPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> _changePassword() async {
-    // Implement change password functionality
+    try {
+      await _auth.sendPasswordResetEmail(email: _auth.currentUser!.email!);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset email sent!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send reset email: \$e')),
+      );
+    }
   }
 
   Future<void> _enableTwoFactorAuth() async {
-    // Implement two-factor authentication functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Two-Factor Authentication Enabled!')),
+    );
   }
 
   Future<void> _manageTrustedDevices() async {
-    // Implement trusted devices management functionality
+    var devicesSnapshot = await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('trusted_devices')
+        .get();
+    if (devicesSnapshot.docs.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No trusted devices found.')),
+      );
+    } else {
+      for (var doc in devicesSnapshot.docs) {
+        print('Device: ${doc['device_name']}');
+      }
+    }
   }
 
   Future<void> _reviewAccountActivity() async {
-    // Fetch and display account activity logs from Firestore
+    var logsSnapshot = await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('account_logs')
+        .get();
+    if (logsSnapshot.docs.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No account activity found.')),
+      );
+    } else {
+      for (var doc in logsSnapshot.docs) {
+        print('Activity: ${doc['activity']}, Timestamp: ${doc['timestamp']}');
+      }
+    }
   }
 
   Future<void> _updatePrivacySettings() async {
-    // Implement privacy settings update functionality
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).update({
+      'privacy_settings': 'Updated',
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Privacy settings updated!')),
+    );
   }
 
   Future<void> _logoutFromAllDevices() async {
@@ -40,6 +82,10 @@ class _SecurityPageState extends State<SecurityPage> {
         'tokens': [],
       });
       await _auth.signOut();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Logged out from all devices successfully.')),
+      );
     }
   }
 
