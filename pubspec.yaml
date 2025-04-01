@@ -43,6 +43,7 @@ dependencies:
   cloud_firestore: ^5.6.5  # Replace with the latest stable version
   firebase_storage: ^12.4.4 # Replace with the latest stable version
   open_file: ^3.5.10
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
