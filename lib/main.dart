@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'login_page.dart';
 import 'modules_page.dart';
 import 'firebase_options.dart';
+// ignore: unused_import
+import 'offline_mode_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
