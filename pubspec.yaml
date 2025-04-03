@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   percent_indicator: ^4.2.3 # Or the latest version
+  cached_network_image: ^3.2.3 # Add the cached_network_image package
   flutter_svg: ^2.0.7 # Add the flutter_svg package
   path_provider: ^2.0.14 # Add the path_provider package
   permission_handler: ^11.4.0 # Updated the permission_handler package
