@@ -2,17 +2,12 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
-import 'package:permission_handler/permission_handler.dart'
-    as permission_handler;
+import 'dart:html' as html;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
-import 'dart:io';
-
-import 'main.dart';
+import 'dart:typed_data';
 
 enum UserRole {
   student,
@@ -34,7 +29,8 @@ class OfflineModePage extends StatefulWidget {
 
 class OfflineModePageState extends State<OfflineModePage>
     with SingleTickerProviderStateMixin {
-  List<File> downloadedFiles = [];
+  List<html.File> downloadedFiles = [];
+  Map<String, String> fileUrls = {}; // Store URLs for downloaded files
   List<DocumentSnapshot> assignments = [];
   List<DocumentSnapshot> revisionMaterials = [];
   List<DocumentSnapshot> submittedAssignments = [];
@@ -48,8 +44,8 @@ class OfflineModePageState extends State<OfflineModePage>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _loadUserRole();
-    _loadDownloadedFiles();
     _loadFirestoreData();
+    // No need to load downloaded files on init for web since we'll be opening them directly
   }
 
   @override
@@ -142,70 +138,9 @@ class OfflineModePageState extends State<OfflineModePage>
     }
   }
 
-  Future<void> _loadDownloadedFiles() async {
-    try {
-      // Request storage permissions
-      if (Platform.isAndroid) {
-        var status =
-            await permission_handler.Permission.manageExternalStorage.request();
-        if (!status.isGranted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Storage permission is required')),
-          );
-          return;
-        }
-      }
-
-      final directory = await getApplicationDocumentsDirectory();
-      final files = directory
-          .listSync()
-          .whereType<File>()
-          .where((file) =>
-              file.path.endsWith('.pdf') ||
-              file.path.endsWith('.mp4') ||
-              file.path.endsWith('.mp3') ||
-              file.path.endsWith('.docx') ||
-              file.path.endsWith('.pptx'))
-          .toList();
-
-      setState(() {
-        downloadedFiles = files;
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading files: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _deleteFile(File file) async {
-    try {
-      await file.delete();
-      await _loadDownloadedFiles();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${file.path.split('/').last} deleted successfully'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting file: $e')),
-      );
-    }
-  }
-
-  void _openFile(File file) async {
-    try {
-      await OpenFile.open(file.path);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cannot open file: $e')),
-      );
-    }
+  void _openFile(String url, String fileName) {
+    // For web, we'll open the file in a new tab
+    html.window.open(url, '_blank');
   }
 
   Future<void> _downloadFile(String url, String fileName) async {
@@ -214,17 +149,19 @@ class OfflineModePageState extends State<OfflineModePage>
         _isLoading = true;
       });
 
-      final ref = FirebaseStorage.instance.refFromURL(url);
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/$fileName');
+      // For web, download by creating an anchor element
+      html.AnchorElement anchorElement = html.AnchorElement(href: url);
+      anchorElement.download = fileName;
+      anchorElement.click();
 
-      await ref.writeToFile(file);
+      // Store the URL for reference (we can't actually store files on web)
+      setState(() {
+        fileUrls[fileName] = url;
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$fileName downloaded for offline use')),
+        SnackBar(content: Text('$fileName downloading now')),
       );
-
-      await _loadDownloadedFiles();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error downloading file: $e')),
@@ -241,6 +178,7 @@ class OfflineModePageState extends State<OfflineModePage>
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
+        withData: true, // Important for web to get file data
       );
 
       if (result == null) return;
@@ -250,14 +188,21 @@ class OfflineModePageState extends State<OfflineModePage>
       });
 
       final user = FirebaseAuth.instance.currentUser;
-      final file = File(result.files.single.path!);
       final fileName =
           '${user!.uid}_${assignment.id}_${result.files.single.name}';
 
-      // Upload to Firebase Storage
+      // Upload to Firebase Storage (works on web)
       final storageRef =
           FirebaseStorage.instance.ref().child('submissions/$fileName');
-      await storageRef.putFile(file);
+
+      // Get bytes from file for web upload
+      final bytes = result.files.single.bytes;
+      if (bytes == null) {
+        throw Exception('Failed to read file data');
+      }
+
+      // Upload as data bytes for web
+      await storageRef.putData(bytes);
       final downloadUrl = await storageRef.getDownloadURL();
 
       // Create submission record in Firestore
@@ -499,7 +444,7 @@ class OfflineModePageState extends State<OfflineModePage>
   Future<void> _addRevisionMaterial() async {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
-    File? selectedFile;
+    Uint8List? selectedFileBytes;
     String? fileName;
 
     await showDialog(
@@ -527,29 +472,35 @@ class OfflineModePageState extends State<OfflineModePage>
                 maxLines: 3,
               ),
               const SizedBox(height: 16),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.upload_file),
-                label: Text(fileName ?? 'Upload File'),
-                onPressed: () async {
-                  FilePickerResult? result =
-                      await FilePicker.platform.pickFiles(
-                    type: FileType.custom,
-                    allowedExtensions: [
-                      'pdf',
-                      'doc',
-                      'docx',
-                      'ppt',
-                      'pptx',
-                      'mp4',
-                      'mp3'
-                    ],
-                  );
+              StatefulBuilder(
+                builder: (context, setDialogState) {
+                  return ElevatedButton.icon(
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(fileName ?? 'Upload File'),
+                    onPressed: () async {
+                      FilePickerResult? result =
+                          await FilePicker.platform.pickFiles(
+                        type: FileType.custom,
+                        allowedExtensions: [
+                          'pdf',
+                          'doc',
+                          'docx',
+                          'ppt',
+                          'pptx',
+                          'mp4',
+                          'mp3'
+                        ],
+                        withData: true, // Important for web to get file data
+                      );
 
-                  if (result != null) {
-                    selectedFile = File(result.files.single.path!);
-                    fileName = result.files.single.name;
-                    // Need to use setState in a stateful builder or similar to update UI in dialog
-                  }
+                      if (result != null) {
+                        selectedFileBytes = result.files.single.bytes;
+                        setDialogState(() {
+                          fileName = result.files.single.name;
+                        });
+                      }
+                    },
+                  );
                 },
               ),
             ],
@@ -570,7 +521,7 @@ class OfflineModePageState extends State<OfflineModePage>
                   return;
                 }
 
-                if (selectedFile == null) {
+                if (selectedFileBytes == null || fileName == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Please upload a file')),
                   );
@@ -586,7 +537,9 @@ class OfflineModePageState extends State<OfflineModePage>
                 final storageRef = FirebaseStorage.instance
                     .ref()
                     .child('revisionMaterials/${user!.uid}_$fileName');
-                await storageRef.putFile(selectedFile!);
+
+                // Upload bytes for web
+                await storageRef.putData(selectedFileBytes!);
                 final downloadUrl = await storageRef.getDownloadURL();
 
                 await FirebaseFirestore.instance
@@ -623,12 +576,6 @@ class OfflineModePageState extends State<OfflineModePage>
     );
   }
 
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
-
   IconData _getFileIcon(String path) {
     if (path.endsWith('.pdf')) return Icons.picture_as_pdf;
     if (path.endsWith('.mp4')) return Icons.video_library;
@@ -653,7 +600,7 @@ class OfflineModePageState extends State<OfflineModePage>
                     ? 'Assignments'
                     : 'Manage Assignments'),
             const Tab(text: 'Revision Material'),
-            const Tab(text: 'Downloaded Files'),
+            const Tab(text: 'Web Links'),
           ],
           indicatorColor: Colors.white,
         ),
@@ -661,7 +608,6 @@ class OfflineModePageState extends State<OfflineModePage>
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              _loadDownloadedFiles();
               _loadFirestoreData();
             },
             tooltip: 'Refresh Content',
@@ -684,8 +630,8 @@ class OfflineModePageState extends State<OfflineModePage>
                 // Revision Materials Tab
                 _buildRevisionMaterialsTab(),
 
-                // Downloaded Files Tab
-                _buildDownloadedFilesTab(),
+                // Web Links Tab (replaces Downloaded Files for web)
+                _buildWebLinksTab(),
               ],
             ),
     );
@@ -760,12 +706,18 @@ class OfflineModePageState extends State<OfflineModePage>
             .any((submission) => submission['assignmentId'] == assignment.id);
 
         // Find submission if it exists to check grade
-        final submission = submittedAssignments.firstWhere(
-          (submission) => submission['assignmentId'] == assignment.id,
-          orElse: () => throw StateError('No matching submission found'),
-        );
+        DocumentSnapshot? submission;
+        bool isGraded = false;
 
-        final bool isGraded = submission['graded'] == true;
+        try {
+          submission = submittedAssignments.firstWhere(
+            (s) => s['assignmentId'] == assignment.id,
+          );
+          isGraded = submission['graded'] == true;
+        } catch (e) {
+          // No submission found
+          submission = null;
+        }
 
         return Card(
           shape: RoundedRectangleBorder(
@@ -812,7 +764,7 @@ class OfflineModePageState extends State<OfflineModePage>
                 const SizedBox(height: 16),
 
                 // Status and action buttons
-                if (isSubmitted && isGraded)
+                if (isSubmitted && isGraded && submission != null)
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -896,33 +848,35 @@ class OfflineModePageState extends State<OfflineModePage>
   }
 
   Widget _buildEducatorAssignmentsView() {
-    // Tab with sections for assignments and submissions to grade
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Submissions to Grade (${submittedAssignments.length})',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        if (submittedAssignments.isEmpty)
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'No pending submissions to grade',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontStyle: FontStyle.italic,
+              'Submissions to Grade (${submittedAssignments.length})',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          )
-        else
-          Expanded(
-            child: ListView.builder(
+          ),
+          if (submittedAssignments.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'No pending submissions to grade',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16.0),
               itemCount: submittedAssignments.length,
               itemBuilder: (context, index) {
@@ -964,11 +918,11 @@ class OfflineModePageState extends State<OfflineModePage>
                             Icons.download,
                             color: Colors.blue,
                           ),
-                          onPressed: () => _downloadFile(
+                          onPressed: () => _openFile(
                             data['submissionUrl'],
                             data['fileName'] ?? 'submission.pdf',
                           ),
-                          tooltip: 'Download Submission',
+                          tooltip: 'View Submission',
                         ),
                         IconButton(
                           icon: const Icon(
@@ -984,41 +938,31 @@ class OfflineModePageState extends State<OfflineModePage>
                 );
               },
             ),
-          ),
-        const Divider(),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Your Assignments (${assignments.length})',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        if (assignments.isEmpty)
+          const Divider(),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'No assignments created yet',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontStyle: FontStyle.italic,
+              'Your Assignments (${assignments.length})',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'No assignments created yet',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontStyle: FontStyle.italic,
+          if (assignments.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'No assignments created yet',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ),
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(16.0),
             itemCount: assignments.length,
             itemBuilder: (context, index) {
@@ -1052,97 +996,78 @@ class OfflineModePageState extends State<OfflineModePage>
                       Text(
                         'Due: ${data['dueDate']?.toDate().toString().substring(0, 10) ?? 'Not specified'}',
                       ),
-                      if (data['description'] != null &&
-                          data['description'].isNotEmpty)
-                        Text(
-                          data['description'],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      Text(
+                        'Students: ${(data['studentIds'] as List?)?.length ?? 0}',
+                        style: TextStyle(
+                          color: Colors.grey[600],
                         ),
+                      ),
                     ],
                   ),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.more_vert,
-                      color: Colors.deepPurple,
-                    ),
-                    onPressed: () {
-                      // Show assignment options menu
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.edit),
-                              title: const Text('Edit Assignment'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                // Edit assignment functionality would go here
-                              },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () {
+                          // Edit assignment functionality would go here
+                        },
+                        tooltip: 'Edit Assignment',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Delete Assignment?'),
+                              content: const Text(
+                                  'This will permanently delete the assignment. This action cannot be undone.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
                             ),
-                            ListTile(
-                              leading: const Icon(Icons.delete),
-                              title: const Text('Delete Assignment'),
-                              onTap: () async {
-                                Navigator.pop(context);
-                                // Confirm delete
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Delete Assignment'),
-                                    content: const Text(
-                                        'Are you sure you want to delete this assignment? This action cannot be undone.'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, false),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, true),
-                                        child: const Text('Delete',
-                                            style:
-                                                TextStyle(color: Colors.red)),
-                                      ),
-                                    ],
-                                  ),
-                                );
+                          );
 
-                                if (confirm == true) {
-                                  try {
-                                    await FirebaseFirestore.instance
-                                        .collection('assignments')
-                                        .doc(assignment.id)
-                                        .delete();
-                                    await _loadFirestoreData();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              'Assignment deleted successfully')),
-                                    );
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'Error deleting assignment: $e')),
-                                    );
-                                  }
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                          if (confirm == true) {
+                            try {
+                              await FirebaseFirestore.instance
+                                  .collection('assignments')
+                                  .doc(assignment.id)
+                                  .delete();
+                              await _loadFirestoreData();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Assignment deleted')),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content:
+                                        Text('Error deleting assignment: $e')),
+                              );
+                            }
+                          }
+                        },
+                        tooltip: 'Delete Assignment',
+                      ),
+                    ],
                   ),
+                  isThreeLine: true,
                 ),
               );
             },
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1153,7 +1078,7 @@ class OfflineModePageState extends State<OfflineModePage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.book_outlined,
+              Icons.menu_book_outlined,
               size: 100,
               color: Colors.grey[400],
             ),
@@ -1178,6 +1103,7 @@ class OfflineModePageState extends State<OfflineModePage>
         final material = revisionMaterials[index];
         final Map<String, dynamic> data =
             material.data() as Map<String, dynamic>;
+        final String fileName = data['fileName'] ?? 'material.pdf';
 
         return Card(
           shape: RoundedRectangleBorder(
@@ -1190,74 +1116,101 @@ class OfflineModePageState extends State<OfflineModePage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  data['title'] ?? 'Unnamed Material',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (data['description'] != null &&
-                    data['description'].isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      data['description'],
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 8),
                 Row(
                   children: [
                     Icon(
-                      _getFileIcon(data['fileName'] ?? '.pdf'),
+                      _getFileIcon(fileName),
                       color: Colors.deepPurple,
+                      size: 36,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 16),
                     Expanded(
-                      child: Text(
-                        data['fileName'] ?? 'Unknown file',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            data['title'] ?? 'Unnamed Material',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            fileName,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.download),
-                  label: const Text('Download for Offline Use'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    foregroundColor: Colors.white,
+                if (data['description'] != null &&
+                    data['description'].isNotEmpty)
+                  Text(
+                    data['description'],
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                    ),
                   ),
-                  onPressed: () => _downloadFile(
-                    data['fileUrl'],
-                    data['fileName'] ?? 'material_${material.id}.pdf',
-                  ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Added: ${(data['uploadedAt'] as Timestamp).toDate().toString().substring(0, 10)}',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.remove_red_eye),
+                          label: const Text('View'),
+                          onPressed: () => _openFile(
+                            data['fileUrl'],
+                            fileName,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.download),
+                          label: const Text('Download'),
+                          onPressed: () => _downloadFile(
+                            data['fileUrl'],
+                            fileName,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 if (_userRole == UserRole.educator &&
                     data['uploadedBy'] ==
                         FirebaseAuth.instance.currentUser?.uid)
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
+                    padding: const EdgeInsets.only(top: 8),
                     child: TextButton.icon(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      label: const Text('Delete Material',
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      label: const Text('Delete',
                           style: TextStyle(color: Colors.red)),
                       onPressed: () async {
-                        // Confirm delete
                         final confirm = await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Delete Revision Material'),
+                            title: const Text('Delete Material?'),
                             content: const Text(
-                                'Are you sure you want to delete this material? This action cannot be undone.'),
+                                'This will permanently delete this material. This action cannot be undone.'),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
@@ -1265,8 +1218,7 @@ class OfflineModePageState extends State<OfflineModePage>
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Delete',
-                                    style: TextStyle(color: Colors.red)),
+                                child: const Text('Delete'),
                               ),
                             ],
                           ),
@@ -1274,28 +1226,13 @@ class OfflineModePageState extends State<OfflineModePage>
 
                         if (confirm == true) {
                           try {
-                            // Delete from Storage
-                            if (data['fileUrl'] != null) {
-                              try {
-                                final ref = FirebaseStorage.instance
-                                    .refFromURL(data['fileUrl']);
-                                await ref.delete();
-                              } catch (e) {
-                                print('Error deleting file from storage: $e');
-                              }
-                            }
-
-                            // Delete from Firestore
                             await FirebaseFirestore.instance
                                 .collection('revisionMaterials')
                                 .doc(material.id)
                                 .delete();
-
                             await _loadFirestoreData();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text('Material deleted successfully')),
+                              const SnackBar(content: Text('Material deleted')),
                             );
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -1315,84 +1252,99 @@ class OfflineModePageState extends State<OfflineModePage>
     );
   }
 
-  Widget _buildDownloadedFilesTab() {
-    if (downloadedFiles.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.file_download_off,
-              size: 100,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No files downloaded yet',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextButton.icon(
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('Go to Revision Materials'),
-              onPressed: () => _tabController.animateTo(1),
-            ),
-          ],
-        ),
-      );
-    }
+  Widget _buildWebLinksTab() {
+    // Web links collection for educational resources
+    List<Map<String, String>> webLinks = [
+      {
+        'title': 'Khan Academy',
+        'description': 'Free online education platform for all subjects',
+        'url': 'https://www.khanacademy.org/'
+      },
+      {
+        'title': 'Coursera',
+        'description': 'Platform for online courses from top universities',
+        'url': 'https://www.coursera.org/'
+      },
+      {
+        'title': 'MIT OpenCourseWare',
+        'description': 'Free access to MIT course materials',
+        'url': 'https://ocw.mit.edu/'
+      },
+      {
+        'title': 'Wolfram Alpha',
+        'description': 'Computational intelligence for mathematics and science',
+        'url': 'https://www.wolframalpha.com/'
+      },
+      {
+        'title': 'Project Gutenberg',
+        'description': 'Free library of classic books and literature',
+        'url': 'https://www.gutenberg.org/'
+      },
+      {
+        'title': 'TED Talks',
+        'description': 'Thought-provoking videos on various topics',
+        'url': 'https://www.ted.com/talks'
+      },
+      {
+        'title': 'NASA Education',
+        'description': 'Space and science resources for students',
+        'url': 'https://www.nasa.gov/education/'
+      },
+    ];
 
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
-      itemCount: downloadedFiles.length,
+      itemCount: webLinks.length,
       itemBuilder: (context, index) {
-        final file = downloadedFiles[index];
-        final fileName = file.path.split('/').last;
-        final fileSize = _formatFileSize(file.lengthSync());
-
+        final link = webLinks[index];
         return Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          elevation: 3,
-          margin: const EdgeInsets.symmetric(vertical: 6),
+          elevation: 4,
+          margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.grey[200],
+            leading: const CircleAvatar(
+              backgroundColor: Colors.teal,
               child: Icon(
-                _getFileIcon(file.path),
-                color: Colors.deepPurple,
+                Icons.language,
+                color: Colors.white,
               ),
             ),
             title: Text(
-              fileName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              link['title']!,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            subtitle: Text(fileSize),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.folder_open, color: Colors.blue),
-                  onPressed: () => _openFile(file),
-                  tooltip: 'Open File',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _deleteFile(file),
-                  tooltip: 'Delete File',
-                ),
-              ],
+            subtitle: Text(link['description']!),
+            trailing: ElevatedButton(
+              onPressed: () {
+                html.window.open(link['url']!, '_blank');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Visit'),
             ),
-            onTap: () => _openFile(file),
           ),
         );
       },
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Educational App',
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const OfflineModePage(),
     );
   }
 }

@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -9,18 +11,45 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool isEditing = false;
-  final TextEditingController nameController =
-      TextEditingController(text: 'Jack Baraka');
-  final TextEditingController studentIdController =
-      TextEditingController(text: 'INTE/MG/1727/09/21');
-  final TextEditingController courseController = TextEditingController(
-      text: 'Bachelor of Science in Information Technology');
-  final TextEditingController yearController =
-      TextEditingController(text: '4th Year');
-  final TextEditingController universityController =
-      TextEditingController(text: 'Kabarak University');
-  final TextEditingController emailController =
-      TextEditingController(text: 'jack.baraka@student.kabarak.ac.ke');
+  bool isLoading = true;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  User? user;
+
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController studentIdController = TextEditingController();
+  final TextEditingController courseController = TextEditingController();
+  final TextEditingController yearController = TextEditingController();
+  final TextEditingController universityController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(user!.uid).get();
+      if (userDoc.exists) {
+        Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
+        setState(() {
+          nameController.text = data['name'] ?? '';
+          studentIdController.text = data['studentId'] ?? '';
+          courseController.text = data['course'] ?? '';
+          yearController.text = data['year'] ?? '';
+          universityController.text = data['university'] ?? '';
+          emailController.text = data['email'] ?? user!.email!;
+          isLoading = false;
+        });
+      } else {
+        setState(() => isLoading = false);
+      }
+    }
+  }
 
   void toggleEdit() {
     setState(() {
@@ -28,9 +57,20 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  void saveProfile() {
+  Future<void> saveProfile() async {
+    if (user == null) return;
+    setState(() => isLoading = true);
+    await _firestore.collection('users').doc(user!.uid).set({
+      'name': nameController.text.trim(),
+      'studentId': studentIdController.text.trim(),
+      'course': courseController.text.trim(),
+      'year': yearController.text.trim(),
+      'university': universityController.text.trim(),
+      'email': emailController.text.trim(),
+    }, SetOptions(merge: true));
     setState(() {
       isEditing = false;
+      isLoading = false;
     });
   }
 
@@ -52,18 +92,21 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Card(
-          elevation: 4,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: isEditing ? _buildEditableForm() : _buildProfileDisplay(),
-          ),
-        ),
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child:
+                      isEditing ? _buildEditableForm() : _buildProfileDisplay(),
+                ),
+              ),
+            ),
     );
   }
 
@@ -73,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         _buildTextField('Name', nameController),
         _buildTextField('Student ID', studentIdController),
-        _buildTextField('Email', emailController),
+        _buildTextField('Email', emailController, readOnly: true),
         _buildTextField('Course', courseController),
         _buildTextField('Year', yearController),
         _buildTextField('University', universityController),
@@ -95,11 +138,13 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {bool readOnly = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         controller: controller,
+        readOnly: readOnly,
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
