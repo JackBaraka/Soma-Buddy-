@@ -29,6 +29,18 @@ class OfflineModePage extends StatefulWidget {
 
 class OfflineModePageState extends State<OfflineModePage>
     with SingleTickerProviderStateMixin {
+  @override
+  Widget buildOfflineModePage(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Offline Mode Page'),
+      ),
+      body: const Center(
+        child: Text('Content goes here'),
+      ),
+    );
+  }
+
   List<html.File> downloadedFiles = [];
   Map<String, String> fileUrls = {}; // Store URLs for downloaded files
   List<DocumentSnapshot> assignments = [];
@@ -63,12 +75,18 @@ class OfflineModePageState extends State<OfflineModePage>
             .doc(user.uid)
             .get();
 
-        if (userDoc.exists) {
+        if (userDoc.exists &&
+            userDoc.data() != null &&
+            userDoc.data()!.containsKey('role') &&
+            userDoc['role'] != null) {
           setState(() {
-            _userRole = userDoc['role'] == 'educator'
+            _userRole = (userDoc['role'] ?? 'student') == 'educator'
                 ? UserRole.educator
                 : UserRole.student;
           });
+        } else {
+          print(
+              'Error: "role" field does not exist or is null in the user document.');
         }
       }
     } catch (e) {
@@ -580,8 +598,9 @@ class OfflineModePageState extends State<OfflineModePage>
     if (path.endsWith('.pdf')) return Icons.picture_as_pdf;
     if (path.endsWith('.mp4')) return Icons.video_library;
     if (path.endsWith('.mp3')) return Icons.music_note;
-    if (path.endsWith('.docx') || path.endsWith('.doc'))
+    if (path.endsWith('.docx') || path.endsWith('.doc')) {
       return Icons.description;
+    }
     if (path.endsWith('.pptx') || path.endsWith('.ppt')) return Icons.slideshow;
     return Icons.file_present;
   }
@@ -1336,6 +1355,8 @@ class OfflineModePageState extends State<OfflineModePage>
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
