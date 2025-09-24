@@ -740,7 +740,7 @@ class ContentPageState extends State<ContentPage> {
     );
   }
 
-  CachedNetworkImage(
+  void customCachedNetworkImage(
       {required String imageUrl,
       required int height,
       required double width,
