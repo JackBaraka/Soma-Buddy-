@@ -21,6 +21,7 @@ class _SecurityPageState extends State<SecurityPage> {
         const SnackBar(content: Text('Password reset email sent!')),
       );
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to send reset email: \$e')),
       );
