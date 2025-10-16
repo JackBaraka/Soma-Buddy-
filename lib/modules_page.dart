@@ -49,12 +49,14 @@ class _ModulesPageState extends State<ModulesPage> {
       await _auth.signOut();
       if (mounted) {
         Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       }
     } catch (e) {
       if (mounted) {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('Error logging out. Please try again.'),

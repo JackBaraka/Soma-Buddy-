@@ -16,6 +16,7 @@ class _SecurityPageState extends State<SecurityPage> {
   Future<void> _changePassword() async {
     try {
       await _auth.sendPasswordResetEmail(email: _auth.currentUser!.email!);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Password reset email sent!')),
       );

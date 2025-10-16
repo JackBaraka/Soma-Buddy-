@@ -6,6 +6,7 @@ class RewardsPage extends StatefulWidget {
   const RewardsPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _RewardsPageState createState() => _RewardsPageState();
 }
 
@@ -118,11 +119,13 @@ class _RewardsPageState extends State<RewardsPage> {
                                 'points':
                                     FieldValue.increment(-reward['points']),
                               });
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text('Reward redeemed!')),
                               );
                             } else {
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content:
