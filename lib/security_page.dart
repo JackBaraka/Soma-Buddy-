@@ -41,13 +41,13 @@ class _SecurityPageState extends State<SecurityPage> {
         .collection('trusted_devices')
         .get();
     if (devicesSnapshot.docs.isEmpty) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No trusted devices found.')),
       );
     } else {
-      for (var doc in devicesSnapshot.docs) {
-        print('Device: ${doc['device_name']}');
-      }
+      // ignore: unused_local_variable
+      for (var doc in devicesSnapshot.docs) {}
     }
   }
 
