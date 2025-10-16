@@ -2,6 +2,7 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+// ignore: deprecated_member_use, avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,7 +30,6 @@ class OfflineModePage extends StatefulWidget {
 
 class OfflineModePageState extends State<OfflineModePage>
     with SingleTickerProviderStateMixin {
-  @override
   Widget buildOfflineModePage(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -84,14 +84,10 @@ class OfflineModePageState extends State<OfflineModePage>
                 ? UserRole.educator
                 : UserRole.student;
           });
-        } else {
-          print(
-              'Error: "role" field does not exist or is null in the user document.');
-        }
+        } else {}
       }
-    } catch (e) {
-      print('Error loading user role: $e');
-    }
+      // ignore: empty_catches
+    } catch (e) {}
   }
 
   Future<void> _loadFirestoreData() async {

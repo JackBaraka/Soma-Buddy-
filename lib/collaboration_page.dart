@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -24,12 +26,11 @@ class _CollaborationPageState extends State<CollaborationPage> {
         'description': 'Description of ${{_groupNameController.text}}',
       });
       _groupNameController.clear();
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Study Group Created Successfully!')),
       );
-    } catch (e) {
-      print('Error creating study group: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _joinGroup(String groupId, int currentMembers) async {

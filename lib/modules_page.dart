@@ -16,6 +16,7 @@ class ModulesPage extends StatefulWidget {
   const ModulesPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ModulesPageState createState() => _ModulesPageState();
 }
 

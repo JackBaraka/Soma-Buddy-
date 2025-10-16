@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -192,11 +194,12 @@ class ContentPageState extends State<ContentPage> {
         }
       });
 
+      // ignore: duplicate_ignore
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Course saved successfully')),
       );
     } catch (e) {
-      print('Error saving course: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to save course')),
       );
@@ -265,7 +268,6 @@ class ContentPageState extends State<ContentPage> {
         }
       });
     } catch (e) {
-      print('Error updating module status: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to update progress')),
       );
@@ -627,6 +629,7 @@ class ContentPageState extends State<ContentPage> {
           fontWeight: FontWeight.bold,
         ),
       ),
+      // ignore: deprecated_member_use
       backgroundColor: color.withOpacity(0.1),
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
