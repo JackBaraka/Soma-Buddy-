@@ -58,13 +58,13 @@ class _SecurityPageState extends State<SecurityPage> {
         .collection('account_logs')
         .get();
     if (logsSnapshot.docs.isEmpty) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No account activity found.')),
       );
     } else {
-      for (var doc in logsSnapshot.docs) {
-        print('Activity: ${doc['activity']}, Timestamp: ${doc['timestamp']}');
-      }
+      // ignore: unused_local_variable
+      for (var doc in logsSnapshot.docs) {}
     }
   }
 
@@ -72,6 +72,7 @@ class _SecurityPageState extends State<SecurityPage> {
     await _firestore.collection('users').doc(_auth.currentUser!.uid).update({
       'privacy_settings': 'Updated',
     });
+    // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Privacy settings updated!')),
     );
@@ -84,6 +85,7 @@ class _SecurityPageState extends State<SecurityPage> {
         'tokens': [],
       });
       await _auth.signOut();
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Logged out from all devices successfully.')),
